@@ -6,6 +6,9 @@ AVAILABLE_TCS = $(notdir $(wildcard toolchain/syno-*))
 AVAILABLE_ARCHS = $(notdir $(subst syno-,/,$(AVAILABLE_TCS)))
 SUPPORTED_SPKS = $(sort $(patsubst spk/%/Makefile,%,$(wildcard spk/*/Makefile)))
 
+GIT_BRANCH:=$(shell git rev-parse --abbrev-ref HEAD)
+#DOCKER_TAG:=$(notdir $(CURDIR)):$(GIT_BRANCH)
+DOCKER_TAG:=$(notdir $(CURDIR))-bookworm:$(GIT_BRANCH)
 
 ifneq ($(firstword $(MAKECMDGOALS)),test)
 all: $(SUPPORTED_SPKS)
@@ -164,6 +167,15 @@ lint: jsonlint
 .PHONY: toolchains kernel-modules
 toolchains: $(addprefix toolchain-,$(AVAILABLE_ARCHS))
 kernel-modules: $(addprefix kernel-,$(AVAILABLE_ARCHS))
+
+.PHONY: run image
+run: image
+	docker run -it --rm --user=$$UID --volume=$$PWD:/spksrc $(DOCKER_TAG)
+image: Dockerfile
+	docker build --progress=plain --tag=$(DOCKER_TAG) \
+	    --build-arg=UID=$$UID \
+	    --build-arg=USER=$$USER \
+	    .
 
 toolchain-%:
 	-@cd toolchain/syno-$*/ && MAKEFLAGS= $(MAKE)
