@@ -20,6 +20,7 @@ on:
     branches:
       - "**"
     paths:
+    - '.github/workflows/**'
     - 'spk/**'
     - 'cross/**'
     - 'native/**'
