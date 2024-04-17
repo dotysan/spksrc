@@ -84,49 +84,23 @@ jobs:
       matrix:
         # x64=x86_64, evansport=i686, aarch64=armv8, armv7, hi3535=armv7l, 88f6281=armv5, qoriq=ppc
         # https://github.com/SynoCommunity/spksrc/wiki/Synology-and-SynoCommunity-Package-Architectures
-        #arch: noarch
-        include:
-          - tc: 6.1
-            arch:
-              - noarch
-          - tc: 6.2.4
-            arch:
-              - x64
-              - evansport
-              - aarch64
-              - armv7
-              - hi3535
-              - 88f6281
-              - qoriq
-          - tc: 7.0
-            arch:
-              - noarch
-          - tc: 7.1
-            arch:
-              - x64
-              - evansport
-              - aarch64
-              - armv7
-              - comcerto2k
-          - tc: 7.2
-            arch:
-              - x64
-#        arch:
-#          - noarch
-#          - x64
-#          - evansport
-#          - aarch64
-#          - armv7
-#          - hi3535
-#          - 88f6281
-#          - qoriq
-#          - comcerto2k
-#        tc:
-#          - 6.1
-#          - 6.2.4
-#          - 7.0
-#          - 7.1
-#          - 7.2
+        arch:
+          - noarch
+          - noarch-6.1
+          - noarch-7.0
+          - x64-6.2.4
+          - x64-7.1
+          - x64-7.2
+          - evansport-6.2.4
+          - evansport-7.1
+          - aarch64-6.2.4
+          - aarch64-7.1
+          - armv7-6.2.4
+          - armv7-7.1
+          - hi3535-6.2.4
+          - 88f6281-6.2.4
+          - qoriq-6.2.4
+          - comcerto2k-7.1
 
     steps:
       - name: Checkout repository
@@ -136,7 +110,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: toolchain/*/work
-          key: toolchain-${{ matrix.arch }}-${{ matrix.tc }}-v3-${{ hashFiles('toolchain/*/digests') }}
+          key: toolchain-${{ matrix.arch }}-v3-${{ hashFiles('toolchain/*/digests') }}
 
       - name: Use cache of downloaded files
         uses: actions/cache@v4
@@ -158,7 +132,7 @@ jobs:
           API_KEY: ${{ secrets.PUBLISH_API_KEY }}
           PACKAGE_TO_PUBLISH: ${{ github.event.inputs.package }}
           # https://github.com/SynoCommunity/spksrc/wiki/Compile-and-build-rules
-          GH_ARCH: ${{ matrix.arch }}-${{ matrix.tc }}
+          GH_ARCH: ${{ matrix.arch }}
           BUILD_ERROR_FILE: /github/workspace/build_errors.txt
           BUILD_ERROR_LOGFILE: /github/workspace/build_log_errors.txt
           BUILD_UNSUPPORTED_FILE: /github/workspace/build_unsupported.txt
@@ -181,6 +155,6 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Packages for ${{ matrix.arch }}-${{ matrix.tc }}
+          name: Packages for ${{ matrix.arch }}
           path: packages/*.spk
           if-no-files-found: ignore
